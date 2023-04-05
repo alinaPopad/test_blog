@@ -55,7 +55,6 @@ def post_detail(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
     post_count = Post.objects.filter(author=post.author).count()
     title_post = post.text[:30]
-    author = post.author
 
     context = {
         'post': post,
