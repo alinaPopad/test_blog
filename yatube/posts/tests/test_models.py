@@ -18,12 +18,12 @@ class PostModelTest(TestCase):
         )
         cls.post = Post.objects.create(
             author=cls.user,
-            text='Тестовый пост',
+            text='Тестовый пост14',
         )
 
     def test_models_have_correct_object_names(self):
         """Проверяем, что у моделей корректно работает __str__."""
-        group = PostModelTest.group  # Обратите внимание на синтаксис
+        group = self.group  # Обратите внимание на синтаксис
         expected_object_name = group.title
         self.assertEqual(expected_object_name, str(group))
 

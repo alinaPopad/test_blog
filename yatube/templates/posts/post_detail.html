@@ -3,7 +3,7 @@
 {%block title%} Пост {{title_post}} {%endblock title %}
 {% block content %}
 {% if is_edit %}
-         <form method="post" action="{% url 'posts:post_edit' post_id %}">
+         <form method="post" action="{% url 'posts:post_edit' post.id %}">
          {% else %}
           <form method="post" action="{% url 'posts:post_create' %}">
           {% endif %} 
@@ -26,7 +26,7 @@
               Всего постов автора:  <span >{{post_count}}</span>
             </li>
             <li class="list-group-item">
-                <a href="{% url 'posts:profile' author.username %}">
+                <a href="{% url 'posts:profile' post.author %}">
                 все посты пользователя
               </a>
             </li>
@@ -34,11 +34,11 @@
         </aside>
         <article class="col-12 col-md-9">
           <p>
-            <h3> текст поста {{post.pk}} </h3>
+            <h3> текст поста {{post.id}} </h3>
             {{ post.text|linebreaksbr }}
           </p>
           {% if request.user.is_authenticated %}
-          <a class="btn btn-primary" href={% url 'posts:post_edit' post_id %}>
+          <a class="btn btn-primary" href={% url 'posts:post_edit' post.id %}>
             Редактировать запись
           </a>
           {% endif %}

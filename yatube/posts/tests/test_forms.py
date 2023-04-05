@@ -1,8 +1,9 @@
 from django.contrib.auth import get_user_model
-from posts.forms import PostForm
-from posts.models import Post, Group, User
 from django.test import Client, TestCase
 from django.urls import reverse
+
+from posts.forms import PostForm
+from posts.models import Post, Group, User
 
 User = get_user_model()
 
@@ -50,6 +51,7 @@ class PostFormTests(TestCase):
                               kwargs={'username': self.post.author})
         )
         self.assertEqual(Post.objects.count(), post_count + 1)
+        self.assertTrue(Post.objects.filter(text='test text',).exists())
 
     def test_post_edit(self):
         posts_count = Post.objects.count()
@@ -62,12 +64,6 @@ class PostFormTests(TestCase):
             data=form_data,
             follow=True,
         )
-
-        """response = self.guest_client.post(
-            reverse('posts:post_edit', kwargs={'post_id': cls.post.id}),
-            data=form_data['text'],
-            follow=True,
-        )"""
         mod_post = Post.objects.get(id=self.post.id)
         self.assertRedirects(
             response,
@@ -84,3 +80,4 @@ class PostFormTests(TestCase):
             self.post.group,
             'group не изменилась'
         )
+        self.assertTrue(Post.objects.filter(text='test text1',).exists())
