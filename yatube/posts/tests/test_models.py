@@ -18,7 +18,7 @@ class PostModelTest(TestCase):
         )
         cls.post = Post.objects.create(
             author=cls.user,
-            text='Тестовый пост14',
+            text='Тестовый пост141516',
         )
 
     def test_models_have_correct_object_names(self):
@@ -29,6 +29,6 @@ class PostModelTest(TestCase):
 
     def test_models_have_correct_object_names1(self):
         """Проверяем, что у моделей корректно работает __str__."""
-        post = PostModelTest.post  # Обратите внимание на синтаксис
-        expected_object_name1 = post.text
+        post = self.post  # Обратите внимание на синтаксис
+        expected_object_name1 = post.text[:15]
         self.assertEqual(expected_object_name1, str(post))
