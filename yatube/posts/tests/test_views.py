@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 from django import forms
+from django.core.cache import cache
 
 from posts.models import Group, Post
 
@@ -36,6 +37,7 @@ class PostViewTest(TestCase):
         self.guest_client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
+        cache.clear()
 
     # Проверяем используемые шаблоны
     def test_pages_uses_correct_template(self):
@@ -144,6 +146,20 @@ class PostViewTest(TestCase):
         response_post_group2 = response_group2.context['page_obj']
         self.assertEqual(len(response_post_group2), 0)
 
+    def test_index_cache(self):
+        response = self.authorized_client.get(
+            reverse('posts:index')
+        )
+        Post.objects.all().delete()
+        response_1 = self.authorized_client.get(
+            reverse('posts:index'))
+        cache.clear()
+        response_2 = self.authorized_client.get(
+            reverse('posts:index')
+        )
+        self.assertEqual(response.content, response_1.content)
+        self.assertNotEqual(response_1.content, response_2.content)
+
 
 POSTS_AMOUNT = 13
 
@@ -173,6 +189,7 @@ class PaginatorViewsTest(TestCase):
         self.user = User.objects.create_user(username='P_test')
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
+        cache.clear()
 
     def test_page_contains(self):
 

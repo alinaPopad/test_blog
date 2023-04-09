@@ -1,13 +1,15 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import cache_page
 
-from .models import Post, Group, User, Comment
+from .models import Post, Group, User
 from .forms import PostForm, CommentForm
 
 POST_FILTER = 10
 
 
+@cache_page(20, key_prefix='index_page')
 def index(request):
     posts = Post.objects.all()
     paginator = Paginator(posts, POST_FILTER)
@@ -15,6 +17,7 @@ def index(request):
     page_obj = paginator.get_page(page_number)
 
     context = {
+        'posts': posts,
         'page_obj': page_obj,
     }
     return render(request, 'posts/index.html', context)
