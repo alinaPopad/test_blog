@@ -28,6 +28,11 @@ class Post(models.Model):
                               null=True,
                               on_delete=models.SET_NULL,
                               related_name='posts')
+    image = models.ImageField(
+        'Картинка',
+        upload_to='posts/',
+        blank=True
+    )
 
     class Meta:
         default_related_name = 'posts'
@@ -35,3 +40,30 @@ class Post(models.Model):
 
     def __str__(self) -> str:
         return self.text[:15]
+
+
+class Comment(models.Model):
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='comment',
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='author',
+    )
+    text = models.CharField(
+        'Текст комментария',
+        help_text='введите комментарий',
+        max_length=200,
+    )
+    created = models.DateTimeField(
+        'дата публикации',
+        auto_now_add=True,
+    )
+
+    def __str__(self):
+        return self.text[:200]

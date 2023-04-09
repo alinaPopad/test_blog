@@ -61,6 +61,7 @@ class PostViewTest(TestCase):
             with self.subTest(template=template):
                 response = self.authorized_client.get(reverse_name)
                 self.assertTemplateUsed(response, template)
+                self.assertContains(response, '<img')
 
     def test_context_post_create(self):
         response = self.authorized_client.get(reverse('posts:post_create'))
@@ -83,6 +84,7 @@ class PostViewTest(TestCase):
         form_fields = {
             'group': forms.fields.ChoiceField,
             'text': forms.fields.CharField,
+            'image': forms.fields.ImageField,
         }
 
         for value, expected in form_fields.items():

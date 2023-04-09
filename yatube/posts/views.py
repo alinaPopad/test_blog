@@ -2,8 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 
-from .models import Post, Group, User
-from .forms import PostForm
+from .models import Post, Group, User, Comment
+from .forms import PostForm, CommentForm
 
 POST_FILTER = 10
 
@@ -51,22 +51,40 @@ def profile(request, username):
     return render(request, 'posts/profile.html', context)
 
 
+@login_required
+def add_comment(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    form = CommentForm(request.POST or None)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.author = request.user
+        comment.post = post
+        comment.save()
+    return redirect('posts:post_detail', post_id=post_id)
+
+
 def post_detail(request, post_id):
-    post = get_object_or_404(Post, pk=post_id)
+    post = get_object_or_404(Post, id=post_id)
     post_count = Post.objects.filter(author=post.author).count()
     title_post = post.text[:30]
-
+    form = CommentForm()
+    comments = post.comments.all()
+    author = post.author
     context = {
         'post': post,
         'post_count': post_count,
         'title_post': title_post,
+        'comments': comments,
+        'form': form,
+        'author': author,
     }
     return render(request, 'posts/post_detail.html', context)
 
 
 @login_required
 def post_create(request):
-    form = PostForm(request.POST or None)
+    form = PostForm(request.POST or None,
+                    files=request.FILES or None,)
     if request.method == 'POST':
         if form.is_valid():
             post = form.save(commit=False)
@@ -79,7 +97,11 @@ def post_create(request):
 @login_required
 def post_edit(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    form = PostForm(instance=post)
+    form = PostForm(
+        request.POST or None,
+        files=request.FILES or None,
+        instance=post
+    )
     context = {
         'is_edit': True,
         'form': form,
@@ -87,9 +109,12 @@ def post_edit(request, post_id):
     if request.user != post.author:
         return redirect('posts:post_detail', post_id)
     if request.method == 'POST':
-        form = PostForm(request.POST or None, instance=post)
+        form = PostForm(request.POST or None, files=request.FILES or None, instance=post)
         if form.is_valid():
             form.save()
             return redirect('posts:post_detail', post_id)
         return render(request, 'posts/create_post.html', {'form': form})
     return render(request, 'posts/create_post.html', context)
+
+
+
